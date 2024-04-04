@@ -1,0 +1,26 @@
+{% extends 'layout/base.html' %}
+{% load static %}
+
+{% block user %}
+    {% include 'layout/authorized.html' %}
+{% endblock %}
+
+{% block content_title %}
+    <div class="main__title container-fluid mb-3">
+        <h2 class="d-inline-block">{{ current }}</h2>
+        {% if other == 'Hot Questions' %}
+            <a href="{% url 'index' %}">{{ other }}</a>
+        {% endif %}
+
+    </div>
+{% endblock %}
+
+{% block content %}
+    {% for question in questions %}
+        {% include 'layout/question_card.html' %}
+    {% endfor %}
+{% endblock %}
+
+{% block pagination %}
+    {% include 'layout/pagination.html' %}
+{% endblock %}

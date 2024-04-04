@@ -1,0 +1,57 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="{% static '/css/bootstrap.css' %}" rel="stylesheet">
+        <link href="{% static '/css/base.css' %}" rel="stylesheet">
+        <title>AskME</title>
+    </head>
+    <body>
+      <nav class="navbar bg-body-tertiry bg-primary" data-bs-theme="dark">
+          <div class="container-fluid">
+            <a class="navbar-brand" href="{% url 'index' %}">AskME</a>
+            <form class="d-flex" role="search">
+              <input class="form-control me-2" type="search" placeholder="Поиск" aria-label="Поиск">
+              <button class="btn btn-outline-success text-bg-success" type="submit">Поиск</button>
+            </form>
+
+            <div class="d-flex justify-content-end gap-3 flex-shrink-0"> <!--User-->
+                {% block user %}
+                {% endblock %}
+            </div>
+
+          </div>
+      </nav>
+      <main class="container-fluid p-3 ps-5 pe-5">
+        {% block content_title %}
+        {% endblock %}
+        <div class="row">
+          <div class="col-9">
+              {% block content %}
+              {% endblock %}
+
+                {% block pagination %}
+                {% endblock %}
+            </div>
+            <div class="col-3">
+                <h3>Popular Tags</h3>
+                <div class="tags container-fluid">
+                  <div class="row">
+                    <div class="col">
+                      {% include 'layout/tag_list.html' with tags=popular.tags %}
+                    </div>
+                  </div>
+                </div>
+                <h3>Best Members</h3>
+                <div class="members container-fluid">
+                  {% for user in popular.users %}
+                      <div class="row">{{ user }}</div>
+                  {% endfor %}
+                </div>
+            </div>
+        </div>
+      </main>
+    </body>
+</html>

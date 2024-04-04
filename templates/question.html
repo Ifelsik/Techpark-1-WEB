@@ -1,0 +1,29 @@
+{% extends 'layout/base.html' %}
+{% load static %}
+
+{% block user %}
+    {% include 'layout/authorized.html' %}
+{% endblock %}
+
+{% block content_title %}
+    {% include 'layout/content_title.html' %}
+{% endblock %}
+
+{% block content %}
+{% include 'layout/question.html' %}
+                
+<hr>
+<h3>Commentaries</h3>
+<div class="commentaries container-fluid mt-3">
+
+    <!--Список комментариев-->
+        {% include 'layout/comment.html' %}
+
+    <hr>
+    <form class="container-fluid mb-3">
+        <textarea class="form-control" id="inputComment" rows="3" placeholder="Enter your comment here"></textarea>
+        <button type="submit" class="btn btn-outline-secondary">Ответить</button>
+    </form>
+</div>
+
+{% endblock %}
