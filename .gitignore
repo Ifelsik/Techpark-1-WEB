@@ -1,4 +1,5 @@
 /_dz_1
 /venv
+/.idea
 
 *.sqlite3
