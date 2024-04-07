@@ -22,5 +22,5 @@
 {% endblock %}
 
 {% block pagination %}
-    {% include 'layout/pagination.html' %}
+    {% include 'layout/pagination.html' with page_obj=questions %}
 {% endblock %}
