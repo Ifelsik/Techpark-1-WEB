@@ -1,0 +1,23 @@
+{% extends 'layout/base.html' %}
+{% load static %}
+
+{% block user %}
+    {% include 'layout/authorized.html' %}
+{% endblock %}
+
+{% block content_title %}
+    <div class="main__title container-fluid mb-3">
+        <h2 class="d-inline-block">{{ content_title }}</h2>
+        <a href="{% url 'index' %}">New Questions</a>
+    </div>
+{% endblock %}
+
+{% block content %}
+    {% for question in questions %}
+        {% include 'layout/question_card.html' %}
+    {% endfor %}
+{% endblock %}
+
+{% block pagination %}
+    {% include 'layout/pagination.html' with page_obj=questions %}
+{% endblock %}

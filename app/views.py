@@ -1,3 +1,4 @@
+import django.core.paginator
 from django.core.paginator import Paginator
 from django.shortcuts import render
 
@@ -9,29 +10,27 @@ QUESTIONS = [
         "image": "zoomer.png",
         "text": f"This is question number {i}",
         "tags": ["tag1", "tag2", "tag3", "tag4"],
-    } for i in range(22)
+    } for i in range(54)
 ]
 
 POPULAR = {
-    "tags": [f"tag{i+1}" for i in range(5)],
-    "users": [f"user{i+1}" for i in range(5)]
+    "tags": [f"tag{i + 1}" for i in range(5)],
+    "users": [f"user{i + 1}" for i in range(5)]
 }
 
 
 def index(request):
     page_obj = paginator(QUESTIONS, request)
-    return render(request, "index.html", {"current": "New Questions",
-                                          "other": "Hot Questions",
+    return render(request, "index.html", {"content_title": "New Questions",
                                           "questions": page_obj,
                                           "popular": POPULAR})
 
 
 def hot(request):
     page_obj = paginator(QUESTIONS[::-1], request)
-    return render(request, "index.html", {"current": "Hot Questions",
-                                          "other": "New Questions",
-                                          "questions": page_obj,
-                                          "popular": POPULAR})
+    return render(request, "hot.html", {"content_title": "Hot Questions",
+                                        "questions": page_obj,
+                                        "popular": POPULAR})
 
 
 def tag(request, tag_name):
@@ -74,4 +73,10 @@ def settings(request):
 def paginator(objects_list, request, per_page_obj=5):
     page_num = request.GET.get('page', 1)
     paginator = Paginator(objects_list, per_page_obj)
-    return paginator.page(page_num)
+    try:
+        page = paginator.page(page_num)
+    except django.core.paginator.PageNotAnInteger:  # If not GET contains Integer
+        page = paginator.page(1)
+    except django.core.paginator.EmptyPage:  # If num of page not in a range
+        page = paginator.page(paginator.num_pages)
+    return page

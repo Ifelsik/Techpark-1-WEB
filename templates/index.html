@@ -7,11 +7,8 @@
 
 {% block content_title %}
     <div class="main__title container-fluid mb-3">
-        <h2 class="d-inline-block">{{ current }}</h2>
-        {% if other == 'Hot Questions' %}
-            <a href="{% url 'index' %}">{{ other }}</a>
-        {% endif %}
-
+        <h2 class="d-inline-block">{{ content_title }}</h2>
+        <a href="{% url 'hot' %}">Hot Questions</a>
     </div>
 {% endblock %}
 
