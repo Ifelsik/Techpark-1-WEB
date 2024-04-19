@@ -1,5 +1,5 @@
 """
-WSGI config for askme_pupkin project.
+WSGI config for askme_cherepnin project.
 
 It exposes the WSGI callable as a module-level variable named ``application``.
 
@@ -11,6 +11,6 @@ import os
 
 from django.core.wsgi import get_wsgi_application
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'askme_pupkin.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'askme_cherepnin.settings')
 
 application = get_wsgi_application()
