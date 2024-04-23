@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'app',  # added lib app which contains models.py
 ]
 
 MIDDLEWARE = [
@@ -75,10 +76,14 @@ WSGI_APPLICATION = 'askme_cherepnin.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-DATABASES = {
+DATABASES = {  # Joined to Postgres
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'askme',
+        'USER': 'postgres',
+        'PASSWORD': 'VKedu2024',
+        'HOST': 'localhost',
+        'PORT': 5432,
     }
 }
 

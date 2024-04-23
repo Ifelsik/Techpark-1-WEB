@@ -1,6 +1,7 @@
 /_dz_1
 /venv
 /.idea
+*/migrations
 
 *.sqlite3
 *.pyc
