@@ -1,17 +1,11 @@
 import django.core.paginator
 from django.core.paginator import Paginator
+from django.http import HttpResponseNotFound
 from django.shortcuts import render
 
+from app.models import Profile, Like, Tag, Question, Answer
+
 # Create your views here.
-QUESTIONS = [
-    {
-        "id": i,
-        "title": f"Question {i}",
-        "image": "zoomer.png",
-        "text": f"This is question number {i}",
-        "tags": ["tag1", "tag2", "tag3", "tag4"],
-    } for i in range(54)
-]
 
 POPULAR = {
     "tags": [f"tag{i + 1}" for i in range(5)],
@@ -20,30 +14,53 @@ POPULAR = {
 
 
 def index(request):
-    page_obj = paginator(QUESTIONS, request)
-    return render(request, "index.html", {"content_title": "New Questions",
-                                          "questions": page_obj,
-                                          "popular": POPULAR})
+    questions = Question.objects.get_new().all()
+    page_obj = paginator(request, questions)
+    context = {
+        "content_title": "New Questions",
+        "questions": page_obj,
+        "popular": POPULAR
+    }
+    return render(request, "index.html", context)
 
 
 def hot(request):
-    page_obj = paginator(QUESTIONS[::-1], request)
-    return render(request, "hot.html", {"content_title": "Hot Questions",
-                                        "questions": page_obj,
-                                        "popular": POPULAR})
+    questions = Question.objects.get_hot().all()
+    page_obj = paginator(request, questions)
+    context = {
+        "content_title": "Hot Questions",
+        "questions": page_obj,
+        "popular": POPULAR
+    }
+    return render(request, "hot.html", context)
 
 
 def tag(request, tag_name):
-    page_obj = paginator(QUESTIONS, request)
-    return render(request, "tag.html", {"content_title": f"Tag: {tag_name}",
-                                        "questions": page_obj,
-                                        "popular": POPULAR})
+    questions = Question.objects.get_by_tag(tag_name).all()
+    page_obj = paginator(request, questions)
+    context = {
+        "content_title": f"Tag: {tag_name}",
+        "questions": page_obj,
+        "popular": POPULAR
+    }
+    return render(request, "tag.html", context)
 
 
 def question(request, question_id):
-    return render(request, "question.html", {"content_title": "Question",
-                                             "question": QUESTIONS[question_id],
-                                             "popular": POPULAR})
+    post = Question.objects.get_by_id(question_id)
+
+    if post is None:
+        return HttpResponseNotFound('<h1>404 Not found...</h1>')
+
+    answers = Answer.objects.get_by_question(post)
+
+    context = {
+        "content_title": "Question",
+        "question": post,
+        "answers": paginator(request, answers),
+        "popular": POPULAR
+    }
+    return render(request, "question.html", context)
 
 
 def ask(request):
@@ -70,7 +87,7 @@ def settings(request):
     return render(request, 'settings.html', context)
 
 
-def paginator(objects_list, request, per_page_obj=5):
+def paginator(request, objects_list, per_page_obj=5):
     page_num = request.GET.get('page', 1)
     paginator = Paginator(objects_list, per_page_obj)
     try:
