@@ -68,34 +68,37 @@ class Command(BaseCommand):
         self.create_tags(ratio)
         self.create_likes(200 * ratio)
 
-        questions = Question.objects.bulk_create([
-            Question(
-                author_id=i % ratio + 1,
-                like_id=i % ratio + 1,
-                answer_count=0,  # upd
-                title=TITLES[i % len(TITLES)],
-                text=TEXTS[i % len(TEXTS)],
-            ) for i in range(10 * ratio)
-        ])
-
         range_start = randint(0, ratio // 3)
         offset = 5 if ratio > 5 else ratio
         random_tags = Tag.objects.filter(id__gte=range_start).all()[:offset]
 
-        through_model_instances = [
-            Question.tag.through(question=question, tag=tag)
-            for question, tag in zip(questions, random_tags)
-        ]
+        for j in range(10):
+            questions = Question.objects.bulk_create([
+                Question(
+                    author_id=(j * i) % ratio + 1,
+                    like_id=(j * i) % ratio + 1,
+                    answer_count=0,  # upd
+                    title=TITLES[(j * i) % len(TITLES)],
+                    text=TEXTS[(j * i) % len(TEXTS)],
+                ) for i in range(ratio)
+            ])
 
-        Question.tag.through.objects.bulk_create(through_model_instances)
+            through_model_instances = [
+                Question.tag.through(question=question, tag=tag)
+                for question, tag in zip(questions, random_tags)
+            ]
 
-        Answer.objects.bulk_create([
-            Answer(
-                question_id=randint(1, ratio),
-                user_id=i % ratio + 1,
-                like_id=i + 1,
-                text=TEXTS[i % len(TEXTS)]
-            ) for i in range(100 * ratio)
-        ])
+            Question.tag.through.objects.bulk_create(through_model_instances)
+
+
+        for j in range(100):
+            Answer.objects.bulk_create([
+                Answer(
+                    question_id=((i + 1) * j) % (10 * ratio) + 1,
+                    user_id=(j * i) % ratio + 1,
+                    like_id=(j * i) + 1,
+                    text=TEXTS[(j * i) % len(TEXTS)]
+                ) for i in range(ratio)
+            ])
 
         print("OK!")

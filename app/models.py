@@ -27,7 +27,7 @@ class Like(models.Model):
     count = models.IntegerField()
 
     def __str__(self):
-        return f"{self.count} (id: {self.id})"
+        return f"(id: {self.id}) {self.count}"
 
 
 # class TagManager(models.Manager):
@@ -72,18 +72,18 @@ class Question(models.Model):
     objects = QuestionManager()
 
     def __str__(self):
-        return self.title
+        return f"(id: {self.id})-{self.title}"
 
 
 class QuestionLike(models.Model):
     class Mark(models.IntegerChoices):
         LIKE = 1
-        NONE = 0
+        NONE = 0  # необходимо ли, удалить?
         DISLIKE = -1
 
     user = models.ForeignKey(Profile, on_delete=models.CASCADE)
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
-    value = models.IntegerField(choices=Mark)
+    value = models.SmallIntegerField(default=Mark.NONE, choices=Mark.choices)
 
     class Meta:
         unique_together = ["user", "question"]
@@ -107,18 +107,18 @@ class Answer(models.Model):
     objects = AnswerManager()
 
     def __str__(self):
-       return self.text[:20]
+        return f"(id: {self.id})-{self.text[20:]}"
 
 
 class AnswerLike(models.Model):
-    # class Mark(models.IntegerChoices):
-    #     LIKE = 1
-    #     NONE = 0
-    #     DISLIKE = -1
+    class Mark(models.IntegerChoices):
+        LIKE = 1
+        NONE = 0  # удалить?
+        DISLIKE = -1
 
     user = models.ForeignKey(Profile, on_delete=models.CASCADE)
     answer = models.ForeignKey(Answer, on_delete=models.CASCADE)
-    value = models.IntegerField(default=0)
+    value = models.SmallIntegerField(default=Mark.NONE, choices=Mark.choices)
 
     class Meta:
         unique_together = ["user", "answer"]
