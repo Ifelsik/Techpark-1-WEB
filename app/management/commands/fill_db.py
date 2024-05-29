@@ -7,7 +7,7 @@ from django.contrib.auth.hashers import make_password
 USERS = ["VladOS", "Vova", "Lev", "Tigr", "Aboba", "Voin228", "KillerQueen", "Borz06", "Arslan21"]
 TAGS = ["Python", "Django", "Web", "Java", "JS", "TensorFlow", "NumPy", "PHP", "SQL"]
 TITLES = ["What?", "How", "Vor", "auf", "stop", "сложна", "Vk", "Yandex"]
-TEXTS = ["Amogus", "How to generate", "why so hard", "Aghhh...", "Comment :D", "Lolol", "You can just...", "текст",
+TEXTS = ["Amogus", "How to generate", "why so hard", "Aghhh...", "Comment :D", "Lolol", "You can just...", "писят два!!!",
          "Кто я?"]
 
 

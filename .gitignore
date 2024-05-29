@@ -3,6 +3,7 @@
 */__pycache__
 */migrations/*
 !*/migrations/__init__.py
+/uploads/avatar/*
 
 *.sqlite3
 *.pyc

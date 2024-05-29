@@ -1,77 +1,28 @@
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link href="../static/css/bootstrap.css" rel="stylesheet">
-        <link href="../static/css/base.css" rel="stylesheet">
-        <title>AskME</title>
-    </head>
-    <body>
-      <nav class="navbar bg-body-tertiry bg-primary" data-bs-theme="dark">
-          <div class="container-fluid">
-            <a class="navbar-brand" href="">AskME</a>
-            <form class="d-flex" role="search">
-              <input class="form-control me-2" type="search" placeholder="Поиск" aria-label="Поиск">
-              <button class="btn btn-outline-success text-bg-success" type="submit">Поиск</button>
-            </form>
+{% extends 'layout/base.html' %}
+{% load static %}
 
-            <div class="d-flex justify-content-end gap-3 flex-shrink-0"> <!--User-->
-              <div class="border">
-                <img src="logo.jpg" width="50px" height="50px">
-              </div>
-              <div>
-                <div>Dr. Pepper</div>
+{% block content_title %}
+    {% include 'layout/content_title.html' %}
+{% endblock %}
+
+{% block content %}
+    <form class="w-25" action="" method="post"> <!--Почему при изменении (например w-30) ширина блока становится 100% от родительского?-->
+        {% csrf_token %}
                 <div>
-                  <a href="/settings.html">Settings</a>
-                  <a href="/logout.html">Log Out</a>
+                {% for error in form.non_field_errors %}
+                    <p class="text-danger">{{ error }}</p>
+                {% endfor %}
                 </div>
-              </div>
-            </div>
-
-          </div>
-      </nav>
-      <main class="container-fluid p-3 ps-5 pe-5">
-        <div class="main__title container-fluid mb-3">
-            <h2 class="d-inline-block">Login</h2>
+        <div class="row-auto mb-3">
+            <label for="{{ form.username.id_for_label }}" class="visually-hidden"></label>
+            {{ form.username }}
         </div>
-        <div class="row">
-          <div class="col-9">
-
-            <form class="w-25"> <!--Почему при изменении (например w-30) ширина блока становится 100% от родительского?-->
-              <div class="row-auto mb-3">
-                <label for="inputLogin2" class="visually-hidden">Эл. адрес</label>
-                <input type="text" class="form-control" id="inputLogin2" placeholder="Login">
-              </div>
-              <div class="row-auto mb-3">
-                <label for="inputPassword2" class="visually-hidden">Пароль</label>
-                <input type="password" class="form-control" id="inputPassword2" placeholder="Password">
-              </div>
-              <div class="row-auto mb-3">
-                <button type="submit" class="btn btn-primary mb-3">Войти</button>
-              </div>
-            </form>
-
-          </div>
-            <div class="col-3">
-                <h3>Popular Tags</h3>
-                <div class="tags container-fluid">
-                  <div class="row">
-                    <div class="col">
-                      Tag#1 Tag#2 Tag#3
-                    </div>
-                  </div>
-                </div>
-                <h3>Best Members</h3>
-                <div class="members container-fluid">
-                  <div class="row">User #1</div>
-                  <div class="row">User #2</div>
-                  <div class="row">User #3</div>
-                  <div class="row">User #4</div>
-                  <div class="row">User #5</div>
-                </div>
-            </div>
+        <div class="row-auto mb-3">
+            <label for="{{ form.password.id_for_label }}" class="visually-hidden"></label>
+            {{ form.password }}
         </div>
-      </main>
-    </body>
-</html>
+        <div class="row-auto mb-3">
+            <button type="submit" class="btn btn-primary mb-3">Войти</button>
+        </div>
+    </form>
+{% endblock %}

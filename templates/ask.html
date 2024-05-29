@@ -1,27 +1,9 @@
 {% extends 'layout/base.html' %}
 
-{% block user %}
-    {% include 'layout/unauthorized.html' %}
-{% endblock %}
-
 {% block content_title %}
     {% include 'layout/content_title.html' %}
 {% endblock %}
 
 {% block content %}
-    <form class="question__form container-fluid ps-5">
-        <div class="mb-3 row">
-            <label for="inputTitle" class="col-sm-1 form-label">Title</label>
-            <input type="text" class="form-control col" id="inputTitle">
-        </div>
-        <div class="mb-3 row">
-            <label for="inputText" class="col-sm-1 form-label">Text</label>
-            <textarea class="form-control col" id="inputText" rows="5"></textarea>
-        </div>
-        <div class="mb-3 row">
-            <label for="inputTitle" class="col-sm-1 form-label">Tags</label>
-            <input type="text" class="form-control col" id="inputTitle">
-        </div>
-        <button type="submit" class="btn btn-outline-success float-end">Ask!</button>
-    </form>
+    {% include 'layout/form.html' with button_text='Ask!' %}
 {% endblock %}

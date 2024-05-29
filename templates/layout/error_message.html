@@ -1,0 +1,9 @@
+{% load static %}
+
+{% if field.errors %}
+    <div>
+        {% for error in field.errors %}
+            <p class="text-danger">{{ error }}</p>
+        {% endfor %}
+    </div>
+{% endif %}

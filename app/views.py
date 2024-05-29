@@ -1,9 +1,14 @@
 import django.core.paginator
+from django.contrib import auth, messages
+from django.contrib.auth import authenticate
+from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.http import HttpResponseNotFound
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from django.urls import reverse
 
 from app.models import Profile, Like, Tag, Question, Answer
+from app.forms import LoginForm, RegisterForm, EditProfileForm, QuestionForm, AnswerForm
 
 # Create your views here.
 
@@ -54,34 +59,95 @@ def question(request, question_id):
 
     answers = Answer.objects.get_by_question(post)
 
+    if request.method == 'POST':
+        form = AnswerForm(request.POST, question=post, user=request.user)
+        if form.is_valid():
+            form.save()
+            return redirect('question', question_id=post.id)
+    else:
+        form = AnswerForm()
+
     context = {
         "content_title": "Question",
         "question": post,
         "answers": paginator(request, answers),
+        "form": form,
         "popular": POPULAR
     }
     return render(request, "question.html", context)
 
 
+@login_required
 def ask(request):
-    return render(request, "ask.html", {"content_title": "Ask", "popular": POPULAR})
+    if request.method == 'POST':
+        form = QuestionForm(request.POST, user=request.user)
+        if form.is_valid():
+            question = form.save()
+            return redirect('question', question_id=question.id)
+    else:
+        form = QuestionForm()
+
+    return render(request, "ask.html", {"content_title": "Ask", "form": form, "popular": POPULAR})
 
 
 def register(request):
-    return render(request, "register.html", {"content_title": "Registration", "popular": POPULAR})
+    if request.method == 'POST':
+        form = RegisterForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect(reverse('index'))  # нужен ли reverse
+    else:
+        form = RegisterForm()
+
+    return render(request, "register.html", {"content_title": "Registration", "form": form, "popular": POPULAR})
 
 
-def login(request):
-    return render(request, 'login.html', {"content_title": "Login", "popular": POPULAR})
+def log_in(request):
+    if request.method == 'POST':
+        form = LoginForm(request.POST)
+        if form.is_valid():
+            user = authenticate(request, **form.cleaned_data)
+            if user:
+                auth.login(request, user)
+                next_url = request.GET.get('next')
+                if next_url:
+                    return redirect(next_url)
+                return redirect('index')
+            else:
+                form.add_error(None, "Wrong login or password!")
+    else:
+        form = LoginForm()  # создаем пустую форму чтобы сбросить поля формы, либо по дефолту в обход if
+
+    context = {
+        "content_title": "Login",
+        "form": form,
+        "popular": POPULAR
+    }
+    return render(request, 'login.html', context)
 
 
+def logout(request):
+    next_page = request.META.get('HTTP_REFERER', None)
+    auth.logout(request)
+
+    if next_page:
+        return redirect(next_page)
+
+    return redirect(reverse('index'))
+
+
+@login_required
 def settings(request):
+    if request.method == "POST":
+        form = EditProfileForm(data=request.POST, current_session_user=request.user)  #  править
+        if form.is_valid():
+            form.save()
+    else:
+        form = EditProfileForm(current_session_user=request.user)
+
     context = {
         "content_title": "Settings",
-        "settings": {
-            "current_login": "Dr. Pepper",
-            "current_email": "example@mail.com"
-        },
+        "form": form,
         "popular": POPULAR
     }
     return render(request, 'settings.html', context)

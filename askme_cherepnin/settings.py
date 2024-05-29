@@ -65,6 +65,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.media',  # добавлено для отображения изображений
             ],
         },
     },
@@ -134,4 +135,6 @@ STATICFILES_DIRS = [
 ]
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'uploads')
-MEDIA_URL = ''
+MEDIA_URL = '/media/'  # а че не отображается в пути?
+
+LOGIN_URL = 'login'  # задано URL представление для логина

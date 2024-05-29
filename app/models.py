@@ -2,7 +2,8 @@ from django.db import models
 from django.contrib.auth.models import User
 from datetime import date
 
-AVATAR_PATH = "uploads/avatar" # settings.py
+AVATAR_PATH = "avatar/"  # MEDIA_ROOT/avatar
+
 
 class ProfileManager(models.Manager):
     def create_user(self):
@@ -10,7 +11,6 @@ class ProfileManager(models.Manager):
 
     def get_avatar(self):
         pass
-
 
 
 class Profile(models.Model):
@@ -24,7 +24,7 @@ class Profile(models.Model):
 
 
 class Like(models.Model):
-    count = models.IntegerField()
+    count = models.IntegerField(default=0)
 
     def __str__(self):
         return f"(id: {self.id}) {self.count}"
@@ -51,7 +51,7 @@ class QuestionManager(models.Manager):
         return self.order_by('-like__count')
 
     def get_by_tag(self, tag_name):
-        return self.filter(tag__name=tag_name)
+        return self.filter(tag__name=tag_name).order_by('-created')
 
     def get_by_id(self, question_id):
         try:
@@ -98,7 +98,7 @@ class AnswerManager(models.Manager):
 
 class Answer(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
-    user = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    user = models.ForeignKey(Profile, on_delete=models.CASCADE)  # поменять имя столбца на author?
     like = models.ForeignKey(Like, on_delete=models.CASCADE)
     # like_count = models.IntegerField()
     created = models.DateTimeField(auto_now_add=True)
