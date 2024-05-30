@@ -1,5 +1,5 @@
 {% load static %}
-<form class="settings__form container-fluid" action="" method="post">
+<form class="settings__form container-fluid" action="" method="post" enctype="multipart/form-data">
     {% csrf_token %}
     {% for field in form %}
         <div class="mb-3 row">

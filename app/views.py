@@ -93,6 +93,7 @@ def ask(request):
 def register(request):
     if request.method == 'POST':
         form = RegisterForm(request.POST, request.FILES)
+        print(request.FILES)
         if form.is_valid():
             form.save()
             return redirect(reverse('index'))  # нужен ли reverse

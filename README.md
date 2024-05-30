@@ -6,7 +6,7 @@
 ```
 python -m venv venv
 ```
-2. Активируем (Linux)
+2. Активируем (Linux) виртуальное окружение
 ```
 . venv/bin/activate
 ```
@@ -14,7 +14,14 @@ python -m venv venv
 ```
 pip install -r requirements.txt
 ```
-4. Запускаем проект  
+4. Далее необходимо настроить бд
+5. После того, как БД настроена можно использовать команду, для наполнения базы тестовыми данными
+```
+python manage.py fill_db <ratio>
+```
+ratio - количество пользователей
+
+6. Запускаем проект  
 ```
 python manage.py runserver
 ```

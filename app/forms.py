@@ -63,6 +63,7 @@ class RegisterForm(forms.ModelForm):
         if commit:
             user.save()
         # возможно надо не использовать ModelManager для избежание потенциальных ошибок
+        print(f"avatar: {self.cleaned_data['avatar']}")
         Profile.objects.create(user=user, avatar=self.cleaned_data['avatar'])
 
         return user

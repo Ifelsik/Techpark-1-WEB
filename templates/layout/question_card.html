@@ -1,9 +1,14 @@
 {% load static %}
+
 <div class="card p-3 mb-3">
   <div class="row g-0">
     <div class="col-md-2">
       <div class="container d-flex flex-column gap-2">
-        <img src="../static/img/zoomer.png" class="mx-auto d-block" height="150" width="150">
+          {% if question.author.avatar %}
+              <img src="{{ question.author.avatar.url }}" class="mx-auto d-block" width="150" height="150">
+          {% else %}
+              <img src="{% static '/img/default_icon.png' %}" class="mx-auto d-block" width="150" height="150">
+          {% endif %}
         <input type="number" class="form-control" aria-label="rating" value="{{ question.like.count }}">
       </div>
     </div>
@@ -16,9 +21,9 @@
       <div class="row ms-1">
         <a class="col-4" href="{% url 'question' question.id %}">
             {% if question.answer_count != 0 %}
-            Answers({{ question.answer_count }})
+                Answers({{ question.answer_count }})
             {% else %}
-            Your answer can be first!
+                Your answer can be first!
             {% endif %}
         </a>
         <div class="col-8">

@@ -134,7 +134,7 @@ STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
 
-MEDIA_ROOT = os.path.join(BASE_DIR, 'uploads')
-MEDIA_URL = '/media/'  # а че не отображается в пути?
+MEDIA_ROOT = os.path.join(BASE_DIR, 'uploads/')
+MEDIA_URL = '/images/'  # а че не отображается в пути?
 
 LOGIN_URL = 'login'  # задано URL представление для логина

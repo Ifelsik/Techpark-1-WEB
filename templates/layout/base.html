@@ -27,7 +27,7 @@
                 {% if request.user.is_authenticated %}
                     <div class="border">
                         {% if request.user.profile.avatar %}
-                            <img src="{{ MEDIA_URL }}.{{ request.user.profile.avatar.url }}" width="50px" height="50px">
+                            <img src="{{ request.user.profile.avatar.url }}" width="50px" height="50px">
                         {% else %}
                             <img src="{% static '/img/default_icon.png' %}" width="50px" height="50px">
                         {% endif %}
