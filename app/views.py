@@ -1,13 +1,16 @@
+import json
+
 import django.core.paginator
-from django.contrib import auth, messages
+from django.contrib import auth
 from django.contrib.auth import authenticate
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
-from django.http import HttpResponseNotFound
+from django.http import HttpResponseNotFound, JsonResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
+from django.views.decorators.http import require_http_methods
 
-from app.models import Profile, Like, Tag, Question, Answer
+from app.models import Profile, Tag, Question, Answer, QuestionLike, AnswerLike
 from app.forms import LoginForm, RegisterForm, EditProfileForm, QuestionForm, AnswerForm
 
 # Create your views here.
@@ -60,7 +63,7 @@ def question(request, question_id):
     answers = Answer.objects.get_by_question(post)
 
     if request.method == 'POST':
-        form = AnswerForm(request.POST, question=post, user=request.user)
+        form = AnswerForm(request.POST, question=post, author=request.user)
         if form.is_valid():
             form.save()
             return redirect('question', question_id=post.id)
@@ -96,7 +99,7 @@ def register(request):
         print(request.FILES)
         if form.is_valid():
             form.save()
-            return redirect(reverse('index'))  # нужен ли reverse
+            return redirect(reverse('index'))  # нужен ли reverse?
     else:
         form = RegisterForm()
 
@@ -140,7 +143,7 @@ def logout(request):
 @login_required
 def settings(request):
     if request.method == "POST":
-        form = EditProfileForm(data=request.POST, current_session_user=request.user)  #  править
+        form = EditProfileForm(data=request.POST, current_session_user=request.user)  # править
         if form.is_valid():
             form.save()
     else:
@@ -152,6 +155,50 @@ def settings(request):
         "popular": POPULAR
     }
     return render(request, 'settings.html', context)
+
+
+@require_http_methods(['POST'])
+@login_required(login_url="login")
+def async_like(request):  # fat controller?
+    body = json.loads(request.body)  # Got a json request from JS
+
+    profile = Profile.objects.get(user=request.user)
+
+    id = int(body['id'])  # may cause error, if id is not integer
+
+    match body['type']:
+        case "question":
+            thing = Question.objects.get(pk=id)
+            like, like_created = QuestionLike.objects.get_or_create(user=profile, question=thing)
+            LIKE = QuestionLike.Mark.LIKE
+            DISLIKE = QuestionLike.Mark.DISLIKE
+        case "answer":
+            thing = Answer.objects.get(pk=id)
+            like, like_created = AnswerLike.objects.get_or_create(user=profile, answer=thing)
+            LIKE = AnswerLike.Mark.LIKE
+            DISLIKE = AnswerLike.Mark.DISLIKE
+        case _:
+            raise ValueError(f"Unknown value for 'type': should be 'question' or 'answer', got '{body['type']}'")
+
+    match body['activity']:
+        case "like":
+            if like.value == LIKE:
+                like.delete()
+            else:  # like.value == DISLIKE or like_created
+                like.value = LIKE
+                like.save()
+        case "dislike":
+            if like.value == DISLIKE:
+                like.delete()
+            else:  # like.value == LIKE or like_created
+                like.value = DISLIKE
+                like.save()
+        case _:
+            raise ValueError(f"Unknown value for 'activity': should be 'like' or 'dislike', got '{body['activity']}'")
+
+    body['like_count'] = thing.get_likes_count()
+
+    return JsonResponse(body)
 
 
 def paginator(request, objects_list, per_page_obj=5):

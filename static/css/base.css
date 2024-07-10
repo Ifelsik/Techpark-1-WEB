@@ -1,4 +1,19 @@
-html, body {
-    width: 100%;
-    height: 100%;
+.like {
+    background-image: url("../img/like.svg");
+    background-repeat: no-repeat; /* не будет повторяться */
+    background-size: cover; /* масштабирование для заполнения блока */
+}
+
+.dislike {
+    background-image: url("../img/dislike.svg");
+    background-repeat: no-repeat; /* не будет повторяться */
+    background-size: cover; /* масштабирование для заполнения блока */
+}
+
+.like:active {
+    background-image: url("../img/like_active.svg");
+}
+
+.dislike:active {
+    background-image: url("../img/dislike_active.svg");
 }

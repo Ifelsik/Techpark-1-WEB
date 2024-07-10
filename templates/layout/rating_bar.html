@@ -1,0 +1,7 @@
+{% load static %}
+
+<div class="d-flex justify-content-center">
+    <button class="btn border-0 like"></button>
+    <p class="like-counter mb-0 ms-1 me-1">{{ object.get_likes_count }}</p>
+    <button class="btn border-0 dislike"></button>
+</div>

@@ -2,37 +2,17 @@ from django.db import models
 from django.contrib.auth.models import User
 from datetime import date
 
+from django.db.models import Sum
+
 AVATAR_PATH = "avatar/"  # MEDIA_ROOT/avatar
-
-
-class ProfileManager(models.Manager):
-    def create_user(self):
-        pass
-
-    def get_avatar(self):
-        pass
 
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     avatar = models.ImageField(blank=True, upload_to=AVATAR_PATH)
 
-    objects = ProfileManager()
-
     def __str__(self):
         return self.user.__str__()
-
-
-class Like(models.Model):
-    count = models.IntegerField(default=0)
-
-    def __str__(self):
-        return f"(id: {self.id}) {self.count}"
-
-
-# class TagManager(models.Manager):
-#     def get_questions(self, tag):
-#         return self.filter(name=tag).all()
 
 
 class Tag(models.Model):
@@ -62,14 +42,20 @@ class QuestionManager(models.Manager):
 
 class Question(models.Model):
     author = models.ForeignKey(Profile, null=True, on_delete=models.CASCADE)
-    like = models.ForeignKey(Like, on_delete=models.CASCADE)
-    answer_count = models.IntegerField()
     created = models.DateTimeField(auto_now_add=True)
     tag = models.ManyToManyField(Tag)
     title = models.CharField(max_length=256)
     text = models.TextField()
 
     objects = QuestionManager()
+
+    def get_likes_count(self):
+        # result of aggregate is a dict
+        likes = QuestionLike.objects.filter(question=self).aggregate(Sum("value"))["value__sum"]
+        return 0 if likes is None else likes
+
+    def get_answers_count(self):
+        return Answer.objects.filter(question=self).count()
 
     def __str__(self):
         return f"(id: {self.id})-{self.title}"
@@ -78,12 +64,11 @@ class Question(models.Model):
 class QuestionLike(models.Model):
     class Mark(models.IntegerChoices):
         LIKE = 1
-        NONE = 0  # необходимо ли, удалить?
         DISLIKE = -1
 
-    user = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    user = models.ForeignKey(Profile, on_delete=models.CASCADE)  # Probably better change name user to author/profile
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
-    value = models.SmallIntegerField(default=Mark.NONE, choices=Mark.choices)
+    value = models.SmallIntegerField(default=0, choices=Mark.choices)
 
     class Meta:
         unique_together = ["user", "question"]
@@ -98,13 +83,16 @@ class AnswerManager(models.Manager):
 
 class Answer(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
-    user = models.ForeignKey(Profile, on_delete=models.CASCADE)  # поменять имя столбца на author?
-    like = models.ForeignKey(Like, on_delete=models.CASCADE)
-    # like_count = models.IntegerField()
+    author = models.ForeignKey(Profile, on_delete=models.CASCADE)
     created = models.DateTimeField(auto_now_add=True)
     text = models.TextField()
 
     objects = AnswerManager()
+
+    def get_likes_count(self):
+        # result of aggregate is a dict
+        likes = AnswerLike.objects.filter(answer=self).aggregate(Sum("value"))["value__sum"]
+        return 0 if likes is None else likes
 
     def __str__(self):
         return f"(id: {self.id})-{self.text[20:]}"
@@ -113,12 +101,11 @@ class Answer(models.Model):
 class AnswerLike(models.Model):
     class Mark(models.IntegerChoices):
         LIKE = 1
-        NONE = 0  # удалить?
         DISLIKE = -1
 
-    user = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    user = models.ForeignKey(Profile, on_delete=models.CASCADE)  # Probably better change name user to author/profile
     answer = models.ForeignKey(Answer, on_delete=models.CASCADE)
-    value = models.SmallIntegerField(default=Mark.NONE, choices=Mark.choices)
+    value = models.SmallIntegerField(default=0, choices=Mark.choices)
 
     class Meta:
         unique_together = ["user", "answer"]

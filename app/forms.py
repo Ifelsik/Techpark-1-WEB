@@ -3,7 +3,7 @@ from django.core import validators
 from django.core.exceptions import ValidationError
 from django.forms import CharField
 
-from app.models import Profile, User, Question, Like, Tag, Answer
+from app.models import Profile, User, Question, Tag, Answer
 from django.contrib.auth.hashers import make_password
 
 

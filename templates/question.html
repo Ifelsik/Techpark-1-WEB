@@ -6,7 +6,33 @@
 {% endblock %}
 
 {% block content %}
-{% include 'layout/question.html' %}
+
+<div class="question container-fluid" data-type="question" data-id="{{ question.id }}">
+    <div class="row mb-3">
+        <div class="col-2" style="min-width: 150px"> <!-- Захардкожен стиль, подумать над более лаконичной реализацией -->
+            {% if question.author.avatar %}
+                <img src="{{ question.author.avatar.url }}" width="150" height="150">
+            {% else %}
+                <img src="{% static '/img/default_icon.png' %}" width="150" height="150">
+            {% endif %}
+        </div>
+        <div class="col-10">
+            <h2>{{ question.title }}</h2>
+            <p class="text-body-secondary">
+                {{ question.text }}
+            </p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-2">
+          {% include 'layout/rating_bar.html' with object=question %}
+        </div>
+        <div class="col-10">
+            <span>Tags: </span>
+            {% include 'layout/tag_list.html' with tags=question.tag.all %}
+        </div>
+    </div>
+</div>
                 
 <hr>
 <h3>Commentaries</h3>

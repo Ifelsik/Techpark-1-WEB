@@ -1,10 +1,11 @@
-from django.urls import path
+from django.urls import path, re_path
 from app import views
 
 from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
+    re_path(r'.*async_like', views.async_like, name='async_like'),  # if i put this path after the /tag/ view i will get a сollision
     path('', views.index, name='index'),
     path('hot', views.hot, name='hot'),
     path('tag/<str:tag_name>', views.tag, name='tag'),
@@ -13,7 +14,7 @@ urlpatterns = [
     path('signup', views.register, name='register'),
     path('login', views.log_in, name='login'),
     path('profile/edit', views.settings, name='settings'),
-    path('logout', views.logout, name='logout')
+    path('logout', views.logout, name='logout'),
 ]
 
 if settings.DEBUG:
