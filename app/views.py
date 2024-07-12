@@ -27,7 +27,11 @@ def index(request):
     context = {
         "content_title": "New Questions",
         "questions": page_obj,
-        "popular": POPULAR
+        "popular":
+            {
+                "tags": Tag.objects.get_popular(),
+                "users": POPULAR['users']
+            }
     }
     return render(request, "index.html", context)
 
@@ -63,7 +67,7 @@ def question(request, question_id):
     answers = Answer.objects.get_by_question(post)
 
     if request.method == 'POST':
-        form = AnswerForm(request.POST, question=post, author=request.user)
+        form = AnswerForm(request.POST, question=post, user=request.user)
         if form.is_valid():
             form.save()
             return redirect('question', question_id=post.id)

@@ -169,14 +169,11 @@ class QuestionForm(forms.ModelForm):
         question = super().save(commit=False)
 
         question.author = self.user.profile
-        like = Like()
-        question.like = like  # potential error
         question.answer_count = 0
         question.title = self.cleaned_data['title']
         question.text = self.cleaned_data['text']
 
         if commit:
-            like.save()
             tags = self.__get_or_create_tags()
             question.save()
             question.tag.set(tags)
@@ -207,13 +204,10 @@ class AnswerForm(forms.ModelForm):
         answer = super().save(commit=False)
 
         answer.question = self.question
-        answer.user = self.user.profile
-        like = Like()
-        answer.like = like
+        answer.author = self.user.profile
         answer.text = self.cleaned_data['text']
 
         if commit:
-            like.save()
             answer.save()
 
         return answer

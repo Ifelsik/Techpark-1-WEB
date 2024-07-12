@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from datetime import date
 
-from django.db.models import Sum
+from django.db.models import Sum, Count
 
 AVATAR_PATH = "avatar/"  # MEDIA_ROOT/avatar
 
@@ -15,10 +15,15 @@ class Profile(models.Model):
         return self.user.__str__()
 
 
+class TagManager(models.Manager):
+    def get_popular(self, count=5):
+        return self.annotate(count=Count('question__tag')).order_by('-count')[:count]
+
+
 class Tag(models.Model):
     name = models.CharField(unique=True, max_length=256)
 
-    # objects = TagManager()
+    objects = TagManager()
     def __str__(self):
         return self.name
 
@@ -27,8 +32,8 @@ class QuestionManager(models.Manager):
     def get_new(self):
         return self.order_by('-created')
 
-    def get_hot(self):
-        return self.order_by('-like__count')
+    def get_hot(self):   # а что если > 1 млн записей?
+        return self.annotate(likes=Sum('questionlike__value')).order_by('-likes')
 
     def get_by_tag(self, tag_name):
         return self.filter(tag__name=tag_name).order_by('-created')
@@ -56,6 +61,11 @@ class Question(models.Model):
 
     def get_answers_count(self):
         return Answer.objects.filter(question=self).count()
+
+    def get_short_text(self, max_length=256):
+        if len(self.text) > max_length:
+            return self.text[:max_length] + "..."
+        return self.text
 
     def __str__(self):
         return f"(id: {self.id})-{self.title}"
