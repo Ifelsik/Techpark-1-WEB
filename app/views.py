@@ -22,7 +22,11 @@ POPULAR = {
 
 
 def index(request):
-    questions = Question.objects.get_new().all()
+    if request.user.is_authenticated:
+        questions = Question.objects.get_new(user=request.user).all()
+    else:
+        questions = Question.objects.get_new().all()
+
     page_obj = paginator(request, questions)
     context = {
         "content_title": "New Questions",
@@ -188,15 +192,19 @@ def async_like(request):  # fat controller?
         case "like":
             if like.value == LIKE:
                 like.delete()
+                body['status'] = 0
             else:  # like.value == DISLIKE or like_created
                 like.value = LIKE
                 like.save()
+                body['status'] = 1
         case "dislike":
             if like.value == DISLIKE:
                 like.delete()
+                body['status'] = 0
             else:  # like.value == LIKE or like_created
                 like.value = DISLIKE
                 like.save()
+                body['status'] = 1
         case _:
             raise ValueError(f"Unknown value for 'activity': should be 'like' or 'dislike', got '{body['activity']}'")
 

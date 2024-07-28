@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from datetime import date
 
-from django.db.models import Sum, Count
+from django.db.models import Sum, Count, Prefetch
 
 AVATAR_PATH = "avatar/"  # MEDIA_ROOT/avatar
 
@@ -29,8 +29,17 @@ class Tag(models.Model):
 
 
 class QuestionManager(models.Manager):
-    def get_new(self):
-        return self.order_by('-created')
+    def get_new(self, user=None):
+        qs = self
+        if user is not None:
+            qs = qs.prefetch_related(
+                Prefetch(
+                    'questionlike_set',
+                    queryset=QuestionLike.objects.filter(user=user.profile),  # rename to author
+                    to_attr='vote',
+                )
+            )
+        return qs.order_by('-created')
 
     def get_hot(self):   # а что если > 1 млн записей?
         return self.annotate(likes=Sum('questionlike__value')).order_by('-likes')

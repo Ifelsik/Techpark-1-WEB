@@ -42,26 +42,50 @@ const init = () => {
     const elements = document.querySelectorAll('.card, .question')
 
     for (const element of elements) {
-        const likeButton = element.querySelector('.like')
-        const dislikeButton = element.querySelector('.dislike')
+        const likeButton = element.querySelector('.like, .like-active')
+        const dislikeButton = element.querySelector('.dislike, .dislike-active')
         const likeCounter = element.querySelector('.like-counter')
 
         const id = element.dataset.id
         const objectType = element.dataset.type
 
+        let isLikeButtonPushed = likeButton.classList.contains('like-active')
+        let isDislikeButtonPushed = dislikeButton.classList.contains('dislike-active')
 
         likeButton.addEventListener('click', () => {
             const request = form_request(objectType, id, 'like')  // hardcode
             fetch(request)
                 .then((response) => response.json())
-                .then((data) => likeCounter.innerHTML = data.like_count)
+                .then((data) => {
+                        likeCounter.innerHTML = data.like_count
+                        if (isDislikeButtonPushed) {
+                            dislikeButton.classList.remove("dislike-active")
+                            dislikeButton.classList.add("dislike")
+                            isDislikeButtonPushed = false
+                        }
+                        likeButton.classList.toggle("like")
+                        likeButton.classList.toggle("like-active")
+                        isLikeButtonPushed = true
+                    }
+                )
                 .catch(error => console.error('Ошибка:', error))
         })
         dislikeButton.addEventListener('click', () => {
             const request = form_request(objectType, id, 'dislike')
             fetch(request)
                 .then((response) => response.json())
-                .then((data) => likeCounter.innerHTML = data.like_count)
+                .then((data) => {
+                        likeCounter.innerHTML = data.like_count
+                        if (isLikeButtonPushed) {
+                            likeButton.classList.remove("like-active")
+                            likeButton.classList.add("like")
+                            isLikeButtonPushed = false
+                        }
+                        dislikeButton.classList.toggle("dislike")
+                        dislikeButton.classList.toggle("dislike-active")
+                        isDislikeButtonPushed = true
+                    }
+                )
                 .catch(error => console.error('Ошибка:', error))
         })
     }
