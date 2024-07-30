@@ -16,13 +16,14 @@ function getCookie(name) {
 
 /**
  * Forms a request
+ * @param handler name of controller in 'urls.py'
  * @param type 'question' or 'answer'
  * @param id number
  * @param activity 'like' or 'dislike'
  * @returns {Request}
  */
-function form_request(type, id, activity) {
-    return new Request('async_like',
+function form_request(handler, type, id, activity) {
+    return new Request(handler,
     {
             method: 'post',
             headers: {
@@ -45,15 +46,16 @@ const init = () => {
         const likeButton = element.querySelector('.like, .like-active')
         const dislikeButton = element.querySelector('.dislike, .dislike-active')
         const likeCounter = element.querySelector('.like-counter')
+        const checkbox = element.querySelector('.form-check-input')
 
-        const id = element.dataset.id
+        const id = Number(element.dataset.id)
         const objectType = element.dataset.type
 
         let isLikeButtonPushed = likeButton.classList.contains('like-active')
         let isDislikeButtonPushed = dislikeButton.classList.contains('dislike-active')
 
         likeButton.addEventListener('click', () => {
-            const request = form_request(objectType, id, 'like')  // hardcode
+            const request = form_request('async_like', objectType, id, 'like')  // hardcode
             fetch(request)
                 .then((response) => response.json())
                 .then((data) => {
@@ -71,7 +73,7 @@ const init = () => {
                 .catch(error => console.error('Ошибка:', error))
         })
         dislikeButton.addEventListener('click', () => {
-            const request = form_request(objectType, id, 'dislike')
+            const request = form_request('async_like', objectType, id, 'dislike')
             fetch(request)
                 .then((response) => response.json())
                 .then((data) => {
@@ -88,6 +90,20 @@ const init = () => {
                 )
                 .catch(error => console.error('Ошибка:', error))
         })
+
+        if (checkbox && !checkbox.disabled) {
+            checkbox.addEventListener('change', () =>
+                {
+                    if (checkbox.checked) {
+                        const request = form_request('',objectType, id, 'checked')
+                        fetch(request)
+                    } else {
+                        const request = form_request(objectType, id, 'unchecked')
+                        fetch(request)
+                    }
+                }
+            )
+        }
     }
 }
 

@@ -5,6 +5,7 @@ from django.contrib import auth
 from django.contrib.auth import authenticate
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
+from django.forms import model_to_dict
 from django.http import HttpResponseNotFound, JsonResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
@@ -22,10 +23,7 @@ POPULAR = {
 
 
 def index(request):
-    if request.user.is_authenticated:
-        questions = Question.objects.get_new(user=request.user).all()
-    else:
-        questions = Question.objects.get_new().all()
+    questions = Question.objects.get_new(user=request.user).all()
 
     page_obj = paginator(request, questions)
     context = {
@@ -41,7 +39,8 @@ def index(request):
 
 
 def hot(request):
-    questions = Question.objects.get_hot().all()
+    questions = Question.objects.get_hot(user=request.user).all()
+
     page_obj = paginator(request, questions)
     context = {
         "content_title": "Hot Questions",
@@ -52,7 +51,7 @@ def hot(request):
 
 
 def tag(request, tag_name):
-    questions = Question.objects.get_by_tag(tag_name).all()
+    questions = Question.objects.get_by_tag(tag_name, user=request.user).all()
     page_obj = paginator(request, questions)
     context = {
         "content_title": f"Tag: {tag_name}",
@@ -68,7 +67,7 @@ def question(request, question_id):
     if post is None:
         return HttpResponseNotFound('<h1>404 Not found...</h1>')
 
-    answers = Answer.objects.get_by_question(post)
+    answers = Answer.objects.get_by_question(post, user=request.user).all()
 
     if request.method == 'POST':
         form = AnswerForm(request.POST, question=post, user=request.user)
@@ -170,9 +169,9 @@ def settings(request):
 def async_like(request):  # fat controller?
     body = json.loads(request.body)  # Got a json request from JS
 
-    profile = Profile.objects.get(user=request.user)
+    profile = request.user.profile
 
-    id = int(body['id'])  # may cause error, if id is not integer
+    id = body['id']  # may cause error, if id is not integer
 
     match body['type']:
         case "question":
@@ -192,25 +191,40 @@ def async_like(request):  # fat controller?
         case "like":
             if like.value == LIKE:
                 like.delete()
-                body['status'] = 0
             else:  # like.value == DISLIKE or like_created
                 like.value = LIKE
                 like.save()
-                body['status'] = 1
         case "dislike":
             if like.value == DISLIKE:
                 like.delete()
-                body['status'] = 0
             else:  # like.value == LIKE or like_created
                 like.value = DISLIKE
                 like.save()
-                body['status'] = 1
         case _:
             raise ValueError(f"Unknown value for 'activity': should be 'like' or 'dislike', got '{body['activity']}'")
 
     body['like_count'] = thing.get_likes_count()
 
     return JsonResponse(body)
+
+
+@require_http_methods(['POST'])
+@login_required(login_url='login')
+def async_mark_correct(request):
+    body = json.loads(request.json)
+
+    profile = request.user.profile
+
+    answer = Answer.objects.get(pk=body['id'])
+    match body['activity']:
+        case "checked":
+            answer.correct = True
+        case "unchecked":
+            answer.correct = False
+        case _:
+            raise ValueError(f"Unknown value for 'activity': should be 'checked' or 'unchecked', got '{body['activity']}'")
+
+    return body
 
 
 def paginator(request, objects_list, per_page_obj=5):

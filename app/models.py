@@ -24,14 +24,15 @@ class Tag(models.Model):
     name = models.CharField(unique=True, max_length=256)
 
     objects = TagManager()
+
     def __str__(self):
         return self.name
 
 
 class QuestionManager(models.Manager):
-    def get_new(self, user=None):
+    def _form_vote_field(self, user):
         qs = self
-        if user is not None:
+        if user is not None and user.is_authenticated:
             qs = qs.prefetch_related(
                 Prefetch(
                     'questionlike_set',
@@ -39,13 +40,19 @@ class QuestionManager(models.Manager):
                     to_attr='vote',
                 )
             )
-        return qs.order_by('-created')
+        return qs
 
-    def get_hot(self):   # а что если > 1 млн записей?
-        return self.annotate(likes=Sum('questionlike__value')).order_by('-likes')
+    def get_new(self, user=None):
+        """User parameter isn't necessary.
+        If there is a user you will got field with current user's vote for every post"""
 
-    def get_by_tag(self, tag_name):
-        return self.filter(tag__name=tag_name).order_by('-created')
+        return self._form_vote_field(user).order_by('-created')
+
+    def get_hot(self, user=None):  # а что если > 1 млн записей?
+        return self._form_vote_field(user).annotate(likes=Sum('questionlike__value')).order_by('-likes')
+
+    def get_by_tag(self, tag_name, user=None):
+        return self._form_vote_field(user).filter(tag__name=tag_name).order_by('-created')
 
     def get_by_id(self, question_id):
         try:
@@ -55,7 +62,7 @@ class QuestionManager(models.Manager):
 
 
 class Question(models.Model):
-    author = models.ForeignKey(Profile, null=True, on_delete=models.CASCADE)
+    author = models.ForeignKey(Profile, on_delete=models.CASCADE)
     created = models.DateTimeField(auto_now_add=True)
     tag = models.ManyToManyField(Tag)
     title = models.CharField(max_length=256)
@@ -93,11 +100,30 @@ class QuestionLike(models.Model):
         unique_together = ["user", "question"]
 
 
+    # def _form_vote_field(self, user):
+    #     qs = self
+    #     if user is not None and user.is_authenticated:
+    #         qs = qs.prefetch_related(
+    #             Prefetch(
+    #                 'questionlike_set',
+    #                 queryset=QuestionLike.objects.filter(user=user.profile),  # rename to author
+    #                 to_attr='vote',
+    #             )
+    #         )
+    #     return qs
+
 class AnswerManager(models.Manager):
-    def get_by_question(self, question):
-        answers = self.filter(question=question)
-        answers.order_by("-created")
-        return answers
+    def get_by_question(self, question, user=None):
+        qs = self
+        if user is not None and user.is_authenticated:
+            qs = qs.prefetch_related(
+                Prefetch(
+                    'answerlike_set',
+                    queryset=AnswerLike.objects.filter(user=user.profile),  # rename user to author/profile
+                    to_attr='vote'
+                )
+            )
+        return qs.filter(question=question).order_by("-created")
 
 
 class Answer(models.Model):

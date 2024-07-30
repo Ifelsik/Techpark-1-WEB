@@ -6,6 +6,7 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     re_path(r'.*async_like', views.async_like, name='async_like'),  # if i put this path after the /tag/ view i will get a сollision
+    re_path(r'.*async_mark_correct', views.async_mark_correct, name='async_mark_correct'),  # same as upper
     path('', views.index, name='index'),
     path('hot', views.hot, name='hot'),
     path('tag/<str:tag_name>', views.tag, name='tag'),
