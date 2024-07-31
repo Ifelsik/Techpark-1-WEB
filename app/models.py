@@ -62,7 +62,7 @@ class QuestionManager(models.Manager):
 
 
 class Question(models.Model):
-    author = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    author = models.ForeignKey(Profile, null=True, on_delete=models.CASCADE)
     created = models.DateTimeField(auto_now_add=True)
     tag = models.ManyToManyField(Tag)
     title = models.CharField(max_length=256)
@@ -100,18 +100,6 @@ class QuestionLike(models.Model):
         unique_together = ["user", "question"]
 
 
-    # def _form_vote_field(self, user):
-    #     qs = self
-    #     if user is not None and user.is_authenticated:
-    #         qs = qs.prefetch_related(
-    #             Prefetch(
-    #                 'questionlike_set',
-    #                 queryset=QuestionLike.objects.filter(user=user.profile),  # rename to author
-    #                 to_attr='vote',
-    #             )
-    #         )
-    #     return qs
-
 class AnswerManager(models.Manager):
     def get_by_question(self, question, user=None):
         qs = self
@@ -131,6 +119,7 @@ class Answer(models.Model):
     author = models.ForeignKey(Profile, on_delete=models.CASCADE)
     created = models.DateTimeField(auto_now_add=True)
     text = models.TextField()
+    is_correct = models.BooleanField(null=True)
 
     objects = AnswerManager()
 
@@ -138,6 +127,11 @@ class Answer(models.Model):
         # result of aggregate is a dict
         likes = AnswerLike.objects.filter(answer=self).aggregate(Sum("value"))["value__sum"]
         return 0 if likes is None else likes
+
+    def get_correct_status(self):
+        if self.is_correct is None or not self.is_correct:
+            return False
+        return True
 
     def __str__(self):
         return f"(id: {self.id})-{self.text[20:]}"

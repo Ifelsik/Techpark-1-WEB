@@ -95,10 +95,10 @@ const init = () => {
             checkbox.addEventListener('change', () =>
                 {
                     if (checkbox.checked) {
-                        const request = form_request('',objectType, id, 'checked')
+                        const request = form_request('async_mark_correct', objectType, id, 'checked')
                         fetch(request)
                     } else {
-                        const request = form_request(objectType, id, 'unchecked')
+                        const request = form_request('async_mark_correct', objectType, id, 'unchecked')
                         fetch(request)
                     }
                 }

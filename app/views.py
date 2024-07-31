@@ -29,11 +29,8 @@ def index(request):
     context = {
         "content_title": "New Questions",
         "questions": page_obj,
-        "popular":
-            {
-                "tags": Tag.objects.get_popular(),
-                "users": POPULAR['users']
-            }
+        "popular_tags": Tag.objects.get_popular(),
+        "popular_users": POPULAR['users']
     }
     return render(request, "index.html", context)
 
@@ -45,7 +42,8 @@ def hot(request):
     context = {
         "content_title": "Hot Questions",
         "questions": page_obj,
-        "popular": POPULAR
+        "popular_tags": Tag.objects.get_popular(),
+        "popular_users": POPULAR['users']
     }
     return render(request, "hot.html", context)
 
@@ -56,7 +54,8 @@ def tag(request, tag_name):
     context = {
         "content_title": f"Tag: {tag_name}",
         "questions": page_obj,
-        "popular": POPULAR
+        "popular_tags": Tag.objects.get_popular(),
+        "popular_users": POPULAR['users']
     }
     return render(request, "tag.html", context)
 
@@ -82,7 +81,8 @@ def question(request, question_id):
         "question": post,
         "answers": paginator(request, answers),
         "form": form,
-        "popular": POPULAR
+        "popular_tags": Tag.objects.get_popular(),
+        "popular_users": POPULAR['users']
     }
     return render(request, "question.html", context)
 
@@ -97,7 +97,13 @@ def ask(request):
     else:
         form = QuestionForm()
 
-    return render(request, "ask.html", {"content_title": "Ask", "form": form, "popular": POPULAR})
+    context = {
+        "content_title": "Ask",
+        "form": form,
+        "popular_tags": Tag.objects.get_popular(),
+        "popular_users": POPULAR['users']
+    }
+    return render(request, "ask.html", context)
 
 
 def register(request):
@@ -110,7 +116,13 @@ def register(request):
     else:
         form = RegisterForm()
 
-    return render(request, "register.html", {"content_title": "Registration", "form": form, "popular": POPULAR})
+    context = {
+        "content_title": "Registration",
+        "form": form,
+        "popular_tags": Tag.objects.get_popular(),
+        "popular_users": POPULAR['users']
+    }
+    return render(request, "register.html", context)
 
 
 def log_in(request):
@@ -132,7 +144,8 @@ def log_in(request):
     context = {
         "content_title": "Login",
         "form": form,
-        "popular": POPULAR
+        "popular_tags": Tag.objects.get_popular(),
+        "popular_users": POPULAR['users']
     }
     return render(request, 'login.html', context)
 
@@ -159,7 +172,8 @@ def settings(request):
     context = {
         "content_title": "Settings",
         "form": form,
-        "popular": POPULAR
+        "popular_tags": Tag.objects.get_popular(),
+        "popular_users": POPULAR['users']
     }
     return render(request, 'settings.html', context)
 
@@ -211,20 +225,23 @@ def async_like(request):  # fat controller?
 @require_http_methods(['POST'])
 @login_required(login_url='login')
 def async_mark_correct(request):
-    body = json.loads(request.json)
-
-    profile = request.user.profile
+    body = json.loads(request.body)
 
     answer = Answer.objects.get(pk=body['id'])
     match body['activity']:
         case "checked":
-            answer.correct = True
+            answer.is_correct = True
+            answer.save()
+            body['status'] = 1
         case "unchecked":
-            answer.correct = False
+            answer.is_correct = None
+            answer.save()
+            body['status'] = 1
         case _:
+            body['status'] = 0
             raise ValueError(f"Unknown value for 'activity': should be 'checked' or 'unchecked', got '{body['activity']}'")
 
-    return body
+    return JsonResponse(body)
 
 
 def paginator(request, objects_list, per_page_obj=5):
