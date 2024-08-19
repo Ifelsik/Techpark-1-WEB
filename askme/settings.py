@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-k^*($552+6ao6a2=pi@)^ac8e-_czvaot4__c)b_cs@ax!!ogz
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []  # добавить свой
+ALLOWED_HOSTS = ['localhost', '127.0.0.1' ,'askme.com']  # добавить свой
 
 
 # Application definition
@@ -135,6 +135,6 @@ STATICFILES_DIRS = [
 ]
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'uploads/')
-MEDIA_URL = '/images/'  # а че не отображается в пути?
+MEDIA_URL = '/uploads/'  # а че не отображается в пути?
 
 LOGIN_URL = 'login'  # задано URL представление для логина
