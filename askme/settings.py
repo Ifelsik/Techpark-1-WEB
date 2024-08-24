@@ -81,7 +81,7 @@ DATABASES = {  # Joined to Postgres
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'askme',
-        'USER': 'postgres',
+        'USER': 'misha',
         'PASSWORD': 'VKedu2024',
         'HOST': 'localhost',
         'PORT': 5432,
