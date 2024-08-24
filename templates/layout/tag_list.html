@@ -1,5 +1,5 @@
 {% load static %}
 
 {% for tag in tags %}
-    <a href="{% url 'tag' tag %}">{{ tag }}</a>
+    <a class="btn btn-danger btn-sm pt-0 pb-0" href="{% url 'tag' tag %}">{{ tag }}</a>
 {% endfor %}

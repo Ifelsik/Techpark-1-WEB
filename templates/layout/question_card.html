@@ -19,16 +19,18 @@
         <p class="card-text"><small class="text-body-secondary">Последнее обновление 3 мин. назад</small></p>
       </div>
       <div class="row ms-1">
-        <a class="col-4" href="{% url 'question' question.id %}">
-            {% if question.get_answers_count %}
-                Answers ({{ question.get_answers_count }})
-            {% else %}
-                Your answer can be first!
-            {% endif %}
-        </a>
+        <div class="col-4">
+            <a class="btn btn-primary" href="{% url 'question' question.id %}">
+                {% if question.get_answers_count %}
+                    Answers ({{ question.get_answers_count }})
+                {% else %}
+                    Answer first!
+                {% endif %}
+            </a>
+        </div>
         <div class="col-8">
-          <span>Tags: </span>
-          {% include 'layout/tag_list.html' with tags=question.tag.all %} <!-- method all() !-->
+            <span>Tags: </span>
+            {% include 'layout/tag_list.html' with tags=question.tag.all %}
         </div>
       </div>
     </div>

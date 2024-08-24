@@ -32,7 +32,7 @@ DATABASES = {
 ```
 python manage.py fill_db <ratio>
 ```
-ratio - количество пользователей
+ratio - количество пользователей  
 6. Далее настраивается nginx. Для Debian. Помещаем файл `nginx.conf` в директорию `/etc/nginx/`, предварительно сохранив
 бекап имеющегося там файла `nginx.conf`:
 ```nginx
