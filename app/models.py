@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from datetime import date
 
 from django.db.models import Sum, Count, Prefetch
+from django.db.models.functions import Coalesce
 
 AVATAR_PATH = "avatar/"  # MEDIA_ROOT/avatar
 
@@ -44,19 +45,19 @@ class QuestionManager(models.Manager):
 
     def get_new(self, user=None):
         """User parameter isn't necessary.
-        If there is a user you will got field with current user's vote for every post"""
+        If there is a user you will get field with current user's vote for every post"""
 
         return self._form_vote_field(user).order_by('-created')
 
     def get_hot(self, user=None):  # а что если > 1 млн записей?
-        return self._form_vote_field(user).annotate(likes=Sum('questionlike__value')).order_by('-likes')
+        return self._form_vote_field(user).annotate(likes=Coalesce(Sum('questionlike__value'), 0)).order_by('-likes')
 
     def get_by_tag(self, tag_name, user=None):
         return self._form_vote_field(user).filter(tag__name=tag_name).order_by('-created')
 
-    def get_by_id(self, question_id):
+    def get_by_id(self, question_id, user=None):
         try:
-            return self.get(pk=question_id)
+            return self._form_vote_field(user).get(pk=question_id)
         except Question.DoesNotExist:
             return None
 

@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-k^*($552+6ao6a2=pi@)^ac8e-_czvaot4__c)b_cs@ax!!ogz'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1' ,'askme.com']  # добавить свой
 
@@ -81,7 +81,7 @@ DATABASES = {  # Joined to Postgres
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'askme',
-        'USER': 'misha',
+        'USER': 'postgres',
         'PASSWORD': 'VKedu2024',
         'HOST': 'localhost',
         'PORT': 5432,

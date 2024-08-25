@@ -61,7 +61,7 @@ def tag(request, tag_name):
 
 
 def question(request, question_id):
-    post = Question.objects.get_by_id(question_id)
+    post = Question.objects.get_by_id(question_id, request.user)
 
     if post is None:
         return HttpResponseNotFound('<h1>404 Not found...</h1>')
